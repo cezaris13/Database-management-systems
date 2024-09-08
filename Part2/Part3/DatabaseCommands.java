@@ -1,5 +1,17 @@
 import java.sql.*;
 
+@FunctionalInterface
+interface ApplyStatementValues {
+    void apply(PreparedStatement statement) throws SQLException;
+}
+
+enum Operation {
+    Add,
+    Search,
+    Update,
+    Remove
+}
+
 public class DatabaseCommands {
 
     public Connection connection;
@@ -10,211 +22,90 @@ public class DatabaseCommands {
     }
 
     public void showProviders() {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement("SELECT * from pipe7709.Tiekejas");
-            resultSet = statement.executeQuery();
+        String sqlString = "SELECT * from pipe7709.Tiekejas";
+        String emptyResultsString = "No providers found";
+        String resultSetTitles = "TiekejoNr, Pavadinimas, TelefonoNumeris, ElPastas, Puslapis";
 
-            if (!resultSet.next()) {
-                System.out.println("No providers found");
-                return;
-            }
-
-            System.out.println("TiekejoNr, Pavadinimas, TelefonoNumeris, ElPastas, Puslapis");
-            printResults(resultSet, 5);
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search);
     }
 
     public void showDrinks() {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement("SELECT * from pipe7709.KavaArbata");
-            resultSet = statement.executeQuery();
-            if (!resultSet.next()) {
-                System.out.println("No drinks were found");
-                return;
-            }
+        String sqlString = "SELECT * from pipe7709.KavaArbata";
+        String emptyResultsString = "No drinks were found";
+        String resultSetTitles = "GerimoNr, TiekejoNr, Pavadinimas, TiekejoKaina, PapildomaInformacija";
 
-            System.out.println("GerimoNr, TiekejoNr, Pavadinimas, TiekejoKaina, PapildomaInformacija");
-            printResults(resultSet, 5);
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search);
     }
 
     public void showEquipment() {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement("SELECT * from pipe7709.Iranga");
-            resultSet = statement.executeQuery();
-            if (!resultSet.next()) {
-                System.out.println("No equipment found");
-                return;
-            }
-
-            System.out.println("IrangosNr, TiekejoNr, Pavadinimas, TiekejoKaina, Talpa");
-            printResults(resultSet, 5);
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        String sqlString = "SELECT * from pipe7709.Iranga";
+        String emptyResultsString = "No equipment found";
+        String resultSetTitles = "IrangosNr, TiekejoNr, Pavadinimas, TiekejoKaina, Talpa";
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search);
     }
 
     public void showShops() {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement("SELECT * from pipe7709.Parduotuve");
-            resultSet = statement.executeQuery();
-            if (!resultSet.next()) {
-                System.out.println("No shops found");
-                return;
-            }
+        String sqlString = "SELECT * from pipe7709.Parduotuve";
+        String emptyResultsString = "No shops found";
+        String resultSetTitles = "GerimoNr, TiekejoNr, Pavadinimas, TiekejoKaina, PapildomaInformacija";
 
-            System.out.println("ParduotuvesNr, Salis, Miestas, Gatve, DarboPradzia, DarboPabaiga");
-            printResults(resultSet, 6);
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search);
     }
 
     public void showShopsEquipment() {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement("SELECT * from pipe7709.ParduotuvesIranga");
-            resultSet = statement.executeQuery();
-            if (!resultSet.next()) {
-                System.out.println("No shops equipment were found");
-                return;
-            }
+        String sqlString = "SELECT * from pipe7709.ParduotuvesIranga";
+        String emptyResultsString = "No shops equipment were found";
+        String resultSetTitles = "ParduotuvesNr, IrangosNr, Kiekis";
 
-            System.out.println("ParduotuvesNr, IrangosNr, Kiekis");
-            printResults(resultSet, 3);
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search);
     }
 
     public void showShopsDrinks() {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement("SELECT * from pipe7709.ParduotuvesGerimas");
+        String sqlString = "SELECT * from pipe7709.ParduotuvesGerimas";
+        String emptyResultsString = "No shop drinks found";
+        String resultSetTitles = "ParduotuvesNr, GerimoNr, Kiekis";
 
-            resultSet = statement.executeQuery();
-            if (!resultSet.next()) {
-                System.out.println("No shop drinks found");
-                return;
-            }
-            System.out.println("ParduotuvesNr, GerimoNr, Kiekis");
-            printResults(resultSet, 3);
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search);
     }
 
     public void findDrink(String drinkName) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection
-                    .prepareStatement("SELECT * from pipe7709.kavaArbata WHERE pipe7709.kavaArbata.Pavadinimas = ?");
-            statement.setString(1, drinkName);
-            resultSet = statement.executeQuery();
-            if (!resultSet.next()) {
-                System.out.println("No drinks by the name: " + drinkName + " were found.");
-                return;
-            }
+        String sqlString = "SELECT * from pipe7709.kavaArbata WHERE pipe7709.kavaArbata.Pavadinimas = ?";
+        String emptyResultsString = "No drinks by the name: " + drinkName + " were found.";
+        String resultSetTitles = "GerimoNr, TiekejoNr, Pavadinimas, TiekejoKaina, PapildomaInformacija";
 
-            System.out.println("GerimoNr, TiekejoNr, Pavadinimas, TiekejoKaina, PapildomaInformacija");
-            printResults(resultSet, 5);
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search, statement -> {
+            statement.setString(1, drinkName);
+        });
     }
 
     public void showCoffeeTeaInTheShop(int shopId) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement("SELECT KA.*, PG.Kiekis as GerimoKiekis " +
-                    "FROM pipe7709.KavaArbata as KA, pipe7709.ParduotuvesGerimas as PG, pipe7709.Parduotuve as P " +
-                    "WHERE P.Nr = ? AND P.Nr = PG.ParduotuvesNr AND PG.GerimoNr = KA.Nr");
+        String sqlString = "SELECT KA.*, PG.Kiekis as GerimoKiekis " +
+                "FROM pipe7709.KavaArbata as KA, pipe7709.ParduotuvesGerimas as PG, pipe7709.Parduotuve as P " +
+                "WHERE P.Nr = ? AND P.Nr = PG.ParduotuvesNr AND PG.GerimoNr = KA.Nr";
+        String emptyResultsString = "No shops,drinks or shop drinks were found";
+        String resultSetTitles = "GerimoNr, TiekejoNr, Pavadinimas, TiekejoKaina, PapildomaInformacija,GerimoKiekis";
+
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search, statement -> {
             statement.setInt(1, shopId);
-            resultSet = statement.executeQuery();
-
-            if (!resultSet.next()) {
-                System.out.println("No shops,drinks or shop drinks were found");
-                return;
-            }
-
-            System.out.println("GerimoNr, TiekejoNr, Pavadinimas, TiekejoKaina, PapildomaInformacija,GerimoKiekis");
-            printResults(resultSet, 6);
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        });
     }
 
     public void findEquipment(String equipmentName) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection
-                    .prepareStatement("SELECT * from pipe7709.Iranga WHERE pipe7709.Iranga.Pavadinimas = ?");
-            statement.setString(1, equipmentName);
-            resultSet = statement.executeQuery();
-            if (!resultSet.next()) {
-                System.out.println("No equipment found.");
-                return;
-            }
+        String sqlString = "SELECT * from pipe7709.Iranga WHERE pipe7709.Iranga.Pavadinimas = ?";
+        String emptyResultsString = "No equipment found.";
+        String resultSetTitles = "IrangosNr, TiekejoNr, Pavadinimas, TiekejoKaina, Talpa";
 
-            System.out.println("IrangosNr, TiekejoNr, Pavadinimas, TiekejoKaina, Talpa");
-            System.out.println(resultSet.getString(1) + "," + resultSet.getString(2) + "," + resultSet.getString(3)
-                    + "," + resultSet.getString(4) + "," + resultSet.getString(5));
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, resultSet);
-        }
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search, statement -> {
+            statement.setString(1, equipmentName);
+        });
     }
 
     public void addNewShop(String country, String city, String street, String bTime,
             String eTime) {
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(
-                    "INSERT INTO pipe7709.Parduotuve (Salis,Miestas,Gatve,DarboPradzia,DarboPabaiga)" +
-                            " VALUES (?,?,?,?,?)");
+        String sqlString = "INSERT INTO pipe7709.Parduotuve (Salis,Miestas,Gatve,DarboPradzia,DarboPabaiga)" +
+                " VALUES (?,?,?,?,?)";
+
+        executeSqlStatement(sqlString, null, null, Operation.Add, statement -> {
             var startTime = Time.valueOf(bTime);
             var endTime = Time.valueOf(eTime);
             statement.setString(1, country);
@@ -222,68 +113,34 @@ public class DatabaseCommands {
             statement.setString(3, street);
             statement.setTime(4, startTime);
             statement.setTime(5, endTime);
-            statement.execute();
-        } catch (SQLException sqlEx) {
-            System.out.println("SQL Error!");
-            sqlEx.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            System.out.println("The given date(s) were invalid");
-        } finally {
-            closeStatement(statement, null);
-        }
+        });
     }
 
     public void updateDrink(int id, String name) {
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement("UPDATE pipe7709.kavaArbata" +
-                    " SET Pavadinimas = ? WHERE Nr = ?");
+        String sqlString = "UPDATE pipe7709.kavaArbata" +
+                " SET Pavadinimas = ? WHERE Nr = ?";
+
+        executeSqlStatement(sqlString, null, null, Operation.Update, statement -> {
             statement.setString(1, name);
             statement.setInt(2, id);
-            statement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, null);
-        }
+        });
     }
 
     public void removeDrink(int id) {
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement("DELETE FROM pipe7709.kavaArbata" +
-                    " WHERE pipe7709.kavaArbata.nr = ?");
-            statement.setInt(1, id);
-            statement.executeUpdate();
-        } catch (SQLException ex) {
-            System.out.println("SQL Error!");
-            ex.printStackTrace();
-        } finally {
-            closeStatement(statement, null);
+        String sqlString = "DELETE FROM pipe7709.kavaArbata" +
+                " WHERE pipe7709.kavaArbata.nr = ?";
 
-        }
+        executeSqlStatement(sqlString, null, null, Operation.Remove, statement -> {
+            statement.setInt(1, id);
+        });
     }
 
     public void showUsers() {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement("SELECT * FROM pipe7709.Pirkejai");
-            resultSet = statement.executeQuery();
-            if (!resultSet.next()) {
-                System.out.println("No users were found");
-                return;
-            }
+        String sqlString = "SELECT * FROM pipe7709.Pirkejai";
+        String emptyResultsString = "No users were found";
+        String resultSetTitles = "PirkejoNr,vardas,pavarde,piniguKiekisPaskyroje";
 
-            System.out.println("PirkejoNr,vardas,pavarde,piniguKiekisPaskyroje");
-            printResults(resultSet, 4);
-        } catch (SQLException e) {
-            System.out.println("SQL Error!");
-            e.printStackTrace();
-        } finally {
-            closeStatement(statement, null);
-        }
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, Operation.Search);
     }
 
     public void buyDrinkForAUser(int amount, int drinkNo, int userNr,
@@ -322,8 +179,16 @@ public class DatabaseCommands {
         }
     }
 
-    private void printResults(ResultSet resultSet, int index) {
+    private void printResults(ResultSet resultSet, String emptyResultsString, String resultSetTitles) {
+        String[] tokens = resultSetTitles.split(",");
+        int index = tokens.length;
         try {
+            if (!resultSet.next()) {
+                System.out.println(emptyResultsString);
+                return;
+            }
+
+            System.out.println(resultSetTitles);
             do {
                 for (int i = 0; i < index; i++) {
                     System.out.print(resultSet.getString(i + 1));
@@ -375,13 +240,54 @@ public class DatabaseCommands {
         }
     }
 
-    private void rollbackTransaction() {
+    private void rollbackTransaction(Connection connection) {
         try {
             if (connection != null) {
                 System.err.println("Transaction is being rolled back");
                 connection.rollback();
             }
         } catch (SQLException ex) {
+        }
+    }
+
+    private void executeSqlStatement(String sqlString, String emptyResultsString, String resultSetTitles,
+            Operation operation) {
+        executeSqlStatement(sqlString, emptyResultsString, resultSetTitles, operation, statement -> {
+        });
+    }
+
+    private void executeSqlStatement(String sqlString, String emptyResultsString, String resultSetTitles,
+            Operation operation,
+            ApplyStatementValues applyStatementValues) {
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            statement = connection.prepareStatement(sqlString);
+            applyStatementValues.apply(statement);
+
+            switch (operation) {
+                case Add:
+                    statement.execute();
+                    break;
+                case Update:
+                case Remove:
+                    statement.executeUpdate();
+                    break;
+                case Search:
+                    resultSet = statement.executeQuery();
+                    printResults(resultSet, emptyResultsString, resultSetTitles);
+                    break;
+                default:
+                    break;
+            }
+        } catch (SQLException ex) {
+            System.out.println("SQL Error!");
+            ex.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            System.out.println("The given date(s) were invalid");
+        } finally {
+            closeStatement(statement, resultSet);
         }
     }
 }
