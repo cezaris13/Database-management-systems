@@ -32,7 +32,7 @@ The tasks for this database:
 ![ERSchema](/Images/ERSchema.png)
 
 #### The DB schema
-![DBSchema](/Images/dbSchema.png)
+![DBSchema](/Images/dbschema.png)
 
 ### Requirements for the database:
 
