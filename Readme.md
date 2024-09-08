@@ -6,7 +6,7 @@ This course was taken in Vilnius university in autumn semester 2021.
 
 The database used for this tasks is biblio:
 
-![Biblio](/Images/dbschema.png)
+![Biblio](/Images/biblio.png)
 
 The tasks for this database:
 
@@ -29,8 +29,10 @@ The tasks for this database:
 
 
 #### The ER schema
+![ERSchema](/Images/ERSchema.png)
 
 #### The DB schema
+![DBSchema](/Images/DBSchema.png)
 
 ### Requirements for the database:
 
