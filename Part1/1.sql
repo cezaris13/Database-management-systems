@@ -13,6 +13,6 @@
 -- SELECT CONCAT(A.Vardas,A.Pavarde) AS "pirmas skaitytojas" ,CONCAT(B.Vardas,B.Pavarde) AS "antras skaitytojas" FROM stud.Skaitytojas As A, stud.Skaitytojas As B where A.nr < B.Nr AND A.Pavarde = B.Pavarde;
 -- or  A.vardas || ',' || A.Pavarde AS "pirmas skaitytojas"...
 
--- DECIMAL(6, 2) - 1234.56
+-- DECIMAL(6, 2) - 1234.5
 
 SELECT DISTINCT(Upper(Left(Pavarde,1))) FROM stud.Skaitytojas;
